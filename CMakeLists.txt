@@ -26,12 +26,13 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 # qpOASES
-# set(QPOASES_DIR "${CMAKE_SOURCE_DIR}/../depends/qpOASES-releases-3.2.1")
-# include_directories(${QPOASES_DIR}/include)
-# link_directories(${QPOASES_DIR}/lib)
+set(QPOASES_DIR "${CMAKE_SOURCE_DIR}/../depends/qpOASES-releases-3.2.1")
+include_directories(${QPOASES_DIR}/include/qpOASES)
+include_directories(${QPOASES_DIR}/include)
+link_directories(${QPOASES_DIR}/lib)
 
-include_directories(/usr/local/include/qpOASES)
-link_directories(/usr/local/lib)
+# include_directories(/usr/local/include/qpOASES)
+# link_directories(/usr/local/lib)
 
 find_package(Eigen3 REQUIRED)
 find_package(Franka 0.9.0 QUIET)
