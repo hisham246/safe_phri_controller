@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "${default}",
+                "limitSymbolsToIncludedHeaders": false
+            },
+            "includePath": [
+                "/home/hisham246/PhD/panda_ws/devel/include/**",
+                "/opt/openrobots/include/**",
+                "/opt/ros/noetic/include/**",
+                "/home/hisham246/PhD/panda_ws/src/franka_ros/franka_control/include/**",
+                "/home/hisham246/PhD/panda_ws/src/franka_ros/franka_example_controllers/include/**",
+                "/home/hisham246/PhD/panda_ws/src/franka_ros/franka_gazebo/include/**",
+                "/home/hisham246/PhD/panda_ws/src/franka_ros/franka_gripper/include/**",
+                "/home/hisham246/PhD/panda_ws/src/franka_ros/franka_hw/include/**",
+                "/home/hisham246/PhD/panda_ws/src/safe_phri_controller/include/**",
+                "/usr/include/**",
+                "/usr/local/include/**"
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "c++14"
+        }
+    ],
+    "version": 4
+}

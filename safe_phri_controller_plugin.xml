@@ -1,0 +1,9 @@
+<library path="lib/libsafe_phri_controller">
+  <class name="safe_phri_controller/CartesianImpedanceController"
+         type="safe_phri_controller::CartesianImpedanceController"
+         base_class_type="controller_interface::ControllerBase">
+    <description>
+      Cartesian impedance controller for the Franka Emika Panda robot
+    </description>
+  </class>
+</library>
