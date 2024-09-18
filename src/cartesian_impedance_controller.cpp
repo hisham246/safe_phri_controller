@@ -108,6 +108,8 @@ bool CartesianImpedanceController::init(hardware_interface::RobotHW* robot_hw,
   cartesian_stiffness_.setZero();
   cartesian_damping_.setZero();
 
+  current_pose_pub_ = node_handle.advertise<geometry_msgs::PoseStamped>("current_pose", 10);
+
   return true;
 }
 
@@ -164,6 +166,8 @@ void CartesianImpedanceController::update(const ros::Time& /*time*/,
   // Added: Gravity vector
   Eigen::Map<Eigen::Matrix<double, 7, 1>> gravity(gravity_array.data());
 
+  ROS_INFO_STREAM(gravity);
+
   // compute error to desired pose
   // position error
   Eigen::Matrix<double, 6, 1> error;
@@ -210,8 +214,8 @@ void CartesianImpedanceController::update(const ros::Time& /*time*/,
   USING_NAMESPACE_QPOASES
 
   // Define dimensions
-  const int num_variables = 7;   // Number of control inputs
-  const int num_constraints = 1; // Number of constraints
+  const int num_variables = 7;  
+  const int num_constraints = 1;
 
   // Define QP problem matrices and vectors
   Eigen::Matrix<double, 7, 7> H = Eigen::Matrix<double, 7, 7>::Identity() * 0.3;
@@ -231,17 +235,18 @@ void CartesianImpedanceController::update(const ros::Time& /*time*/,
   // Setup QP problem
   QProblem qp_solver(num_variables, num_constraints);
   Options options;
+  options.printLevel = PL_NONE;
   qp_solver.setOptions(options);
 
   // Convert Eigen matrices to qpOASES format
-  real_t H_qp[49];  // H is a 7x7 matrix
-  real_t g_qp[7];   // g is a 7x1 vector
-  real_t A_qp[7];   // A is a 1x7 matrix
-  real_t lb_qp[7] = {-87, -87, -87, -87, -12, -12, -12};  // Lower bounds for control inputs (optional, could be set to -inf)
-  real_t ub_qp[7] = {87, 87, 87, 87, 12, 12, 12};  // Upper bounds for control inputs
+  real_t H_qp[49];  
+  real_t g_qp[7];   
+  real_t A_qp[7];  
+  real_t lb_qp[7] = {-87, -87, -87, -87, -12, -12, -12}; 
+  real_t ub_qp[7] = {87, 87, 87, 87, 12, 12, 12}; 
 
-  real_t lbA_qp[1]; // Lower bounds for constraints
-  real_t ubA_qp[1]; // Upper bounds for constraints
+  real_t lbA_qp[1];
+  real_t ubA_qp[1];
 
   std::copy(H.data(), H.data() + 49, H_qp);
   std::copy(g.data(), g.data() + 7, g_qp);
@@ -249,8 +254,8 @@ void CartesianImpedanceController::update(const ros::Time& /*time*/,
 
   lbA_qp[0] = lbA[0];
   ubA_qp[0] = ubA;
-// Measure the solve time
-auto start_time = std::chrono::high_resolution_clock::now();
+  // Measure the solve time
+  auto start_time = std::chrono::high_resolution_clock::now();
 
   int_t nWSR = 10;
   qp_solver.init(H_qp, g_qp, A_qp, lb_qp, ub_qp, lbA_qp, ubA_qp, nWSR);
@@ -259,7 +264,7 @@ auto start_time = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> solve_time = end_time - start_time;
 
   // Log the solve time
-  ROS_INFO_STREAM("QP solve time: " << solve_time.count() << " seconds");
+  // ROS_INFO_STREAM("QP solve time: " << solve_time.count() << " seconds");
 
 
   // Get the solution
@@ -287,6 +292,26 @@ auto start_time = std::chrono::high_resolution_clock::now();
       position_and_orientation_d_target_mutex_);
   position_d_ = filter_params_ * position_d_target_ + (1.0 - filter_params_) * position_d_;
   orientation_d_ = orientation_d_.slerp(filter_params_, orientation_d_target_);
+
+  // Publish the current pose
+  geometry_msgs::PoseStamped current_pose_msg;
+  current_pose_msg.header.stamp = ros::Time::now();
+  current_pose_msg.header.frame_id = "panda_link0";  // Adjust this as per your robot's base frame
+
+  // Fill in the position
+  current_pose_msg.pose.position.x = position.x();
+  current_pose_msg.pose.position.y = position.y();
+  current_pose_msg.pose.position.z = position.z();
+
+  // Fill in the orientation
+  current_pose_msg.pose.orientation.x = orientation.x();
+  current_pose_msg.pose.orientation.y = orientation.y();
+  current_pose_msg.pose.orientation.z = orientation.z();
+  current_pose_msg.pose.orientation.w = orientation.w();
+
+  // Publish the pose message
+  current_pose_pub_.publish(current_pose_msg);
+
 }
 
 Eigen::Matrix<double, 7, 1> CartesianImpedanceController::saturateTorqueRate(

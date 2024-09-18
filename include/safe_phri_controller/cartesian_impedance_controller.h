@@ -66,6 +66,8 @@ class CartesianImpedanceController : public controller_interface::MultiInterface
   // Equilibrium pose subscriber
   ros::Subscriber sub_equilibrium_pose_;
   void equilibriumPoseCallback(const geometry_msgs::PoseStampedConstPtr& msg);
+
+  ros::Publisher current_pose_pub_;
 };
 
 }  // namespace safe_phri_controller
