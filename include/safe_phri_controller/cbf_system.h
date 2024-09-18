@@ -8,7 +8,7 @@ namespace safe_phri_controller {
 class CBFSystem {
 public:
     CBFSystem(const Eigen::VectorXd& q, const Eigen::VectorXd& dq, 
-              const Eigen::MatrixXd& D, const Eigen::VectorXd& C, const Eigen::VectorXd& g, 
+              const Eigen::MatrixXd& D, const Eigen::VectorXd& C, const Eigen::VectorXd& g,
               double alpha)
         : q_(q), dq_(dq), D_(D), C_(C), g_(g), alpha_(alpha) {}
 

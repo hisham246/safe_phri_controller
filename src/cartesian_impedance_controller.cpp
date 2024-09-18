@@ -231,6 +231,7 @@ void CartesianImpedanceController::update(const ros::Time& /*time*/,
   // Setup QP problem
   QProblem qp_solver(num_variables, num_constraints);
   Options options;
+  options.printLevel = PL_NONE;  // Suppress all terminal output from qpOASES
   qp_solver.setOptions(options);
 
   // Convert Eigen matrices to qpOASES format
@@ -249,8 +250,8 @@ void CartesianImpedanceController::update(const ros::Time& /*time*/,
 
   lbA_qp[0] = lbA[0];
   ubA_qp[0] = ubA;
-// Measure the solve time
-auto start_time = std::chrono::high_resolution_clock::now();
+  // Measure the solve time
+  auto start_time = std::chrono::high_resolution_clock::now();
 
   int_t nWSR = 10;
   qp_solver.init(H_qp, g_qp, A_qp, lb_qp, ub_qp, lbA_qp, ubA_qp, nWSR);
@@ -259,7 +260,7 @@ auto start_time = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> solve_time = end_time - start_time;
 
   // Log the solve time
-  ROS_INFO_STREAM("QP solve time: " << solve_time.count() << " seconds");
+  // ROS_INFO_STREAM("QP solve time: " << solve_time.count() << " seconds");
 
 
   // Get the solution
@@ -270,6 +271,8 @@ auto start_time = std::chrono::high_resolution_clock::now();
   for (size_t i = 0; i < 7; ++i) {
     joint_handles_[i].setCommand(tau_optim[i]);
   }
+
+  // ROS_INFO_STREAM(gravity);
 
   // for (size_t i = 0; i < 7; ++i) {
   //   joint_handles_[i].setCommand(tau_d(i));
